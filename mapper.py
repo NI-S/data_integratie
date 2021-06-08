@@ -29,7 +29,7 @@ def readcsv(cur):
     """
     currentColumn = "DoNotRead"
     #the program only reads columns with an appropriate header
-    os.chdir("./csvfiles")
+    os.chdir("./csvfiles2")
     for file in glob.glob("*.csv"):
         with open(file, newline='') as csvfile:
             participantreader = csv.reader(
@@ -132,9 +132,10 @@ def find_value(cur, snomedclass, value, allergy):
         whether or not an exact match could be found
     """
     exactMatch = True
+    match_found = False
     if allergy:
         cur.execute(
-            "SELECT concept_name, "
+            "SELECT concept_id, "
             "regexp_matches(LOWER(concept_name), %(like)s)  "
             "FROM j3_g4.concept where vocabulary_id = 'SNOMED' "
             "AND standard_concept = 'S' AND concept_class_id = %(snomclass)s "
@@ -147,7 +148,7 @@ def find_value(cur, snomedclass, value, allergy):
             #we try to find if any standard terms contain the search term
             exactMatch = False
             cur.execute(
-                "SELECT concept_name FROM j3_g4.concept where vocabulary_id = "
+                "SELECT concept_id FROM j3_g4.concept where vocabulary_id = "
                 "'SNOMED' AND standard_concept = 'S' "
                 "AND concept_class_id = %(snomclass)s "
                 "AND LOWER(concept_name) LIKE %(like)s"
@@ -175,33 +176,37 @@ def find_value(cur, snomedclass, value, allergy):
                             or re.match(('.*' + re.sub('[^a-z\d\s]', '',
                                                        row[1].lower()) + '.*'),
                                         value + " allergy"):
-                        found_row = row[1]
+                        found_row = row[0]
                         break
                     current_value = Levenshtein.distance("Allergy " + value, row[1])
                     #if nothing better is found, the lowest levenshtein distance is used
                     if current_value < lowest_value or lowest_value == 0:
                         lowest_value = current_value
-                        found_row = row[1]
+                        found_row = row[0]
     else:
-        cur.execute("SELECT concept_name FROM j3_g4.concept "
+        cur.execute("SELECT concept_id FROM j3_g4.concept "
                     "where vocabulary_id = 'SNOMED'"
                     " AND standard_concept = 'S' AND concept_class_id = %s "
                     "AND LOWER(concept_name) = %s", (snomedclass, value))
         found_row = str(cur.fetchone()).split(',')[0][1:]
         # simply using cur.fetchone()[0] did not work
-        if cur.rowcount == 0:
+        if cur.rowcount > 0:
+            match_found = True
+        else:
             # we try to find if any standard terms contain the search term
             exactMatch = False
             cur.execute(
-                "SELECT concept_name, regexp_matches(LOWER(concept_name), "
+                "SELECT concept_id, regexp_matches(LOWER(concept_name), "
                 "%(like)s) FROM j3_g4.concept where vocabulary_id = "
                 "'SNOMED' AND standard_concept = 'S' "
                 "AND concept_class_id = %(snomclass)s "
-                , dict(snomclass= snomedclass,
+                , dict(snomclass=snomedclass,
                        like= '(^| )' + value + '($| )'))
             found_row = str(cur.fetchone()).split(',')[0][1:]
             # simply using cur.fetchone()[0] did not work
-            if cur.rowcount == 0:
+            if cur.rowcount > 0:
+                match_found = True
+            else:
                 cur.execute(
                     "SELECT concept_id, concept_name FROM j3_g4.concept "
                     "where vocabulary_id = 'SNOMED'"
@@ -217,13 +222,60 @@ def find_value(cur, snomedclass, value, allergy):
                     if re.match(('.*' +
                                  re.sub('[^a-z\d\s]', '',
                                         row[1].lower()) + '.*'), value):
-                        found_row = row[1]
+                        found_row = row[0]
+                        match_found = True
                         break
                     current_value = Levenshtein.distance(value, row[1])
                     #if nothing better is found, the lowest levenshtein distance is used
                     if current_value < lowest_value or lowest_value == 0:
                         lowest_value = current_value
-                        found_row = row[1]
+                        found_row = row[0]
+            if match_found == False:
+
+                cur.execute(
+                    "SELECT A.concept_id, regexp_matches("
+                    "LOWER(A.concept_synonym_name),%(like)s) "
+                    " FROM j3_g4.concept_synonym A"
+                    " WHERE A.concept_id in (SELECT B.concept_id "
+                    " FROM j3_g4.concept B "
+                            "where B.vocabulary_id = 'SNOMED'"
+                            " AND B.standard_concept = 'S' "
+                            "AND B.concept_class_id = %(snomclass)s  )"
+                    "AND A.language_concept_id = '4180186' "
+                    "order by length(A.concept_synonym_name) desc",
+                    dict(like='(^| )' + value + '($| )',
+                         snomclass=snomedclass))
+                #look for matching synonyms
+                if cur.rowcount > 0:
+                    match_found = True
+                    found_row = str(cur.fetchone()).split(',')[0][1:]
+
+            if match_found == False:
+                cur.execute(
+                    "SELECT concept_id, concept_synonym_name FROM j3_g4.concept_synonym A "
+                    " WHERE A.concept_id in (SELECT B.concept_id "
+                    " FROM j3_g4.concept B "
+                            "where B.vocabulary_id = 'SNOMED'"
+                            " AND B.standard_concept = 'S' "
+                            "AND B.concept_class_id = %(snomclass)s  )"
+                    "AND A.language_concept_id = '4180186' "
+                    "order by length(concept_synonym_name) desc",
+                dict(snomclass=snomedclass))
+                # this is ordered by length to find the longest standard term
+                # that is still wholly contained within the search term
+                found_table = cur.fetchall()
+                for row in found_table:
+                    if re.match(('.*' +
+                                 re.sub('[^a-z\d\s]', '',
+                                        row[1].lower()) + '.*'), value):
+                        found_row = row[0]
+                        break
+                    current_value = Levenshtein.distance(value, row[1])
+                    # if nothing better is found, the lowest levenshtein distance is used
+                    if current_value < lowest_value or lowest_value == 0:
+                        found_row = row[0]
+                        lowest_value = current_value
+
     return found_row, exactMatch
 
 if __name__ == '__main__':
