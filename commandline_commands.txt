@@ -3,6 +3,8 @@
 # Used as a template for automating the annotation of the variants
 # The files should be replaced with the desired filenames.
 # To make a clear distinction between the files, the names ar not changed here.
+# Download and install snpeff https://pcingola.github.io/SnpEff/download/
+
 
 # To install the requirements
 sudo apt update
