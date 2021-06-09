@@ -1,0 +1,18 @@
+Participant,Birth month,Birth year,Sex,Ethnicity,Blood type,Blood pressure,(WeigHgt) (kg),Height (cm),Body type
+PGPC-38,1,1960,F,White,0+,130/70,68,173,Average
+Participant,Conditions or Symptom,
+PGPC-38,Hyperthyroidism (Graves' disease),
+Participant,Immunization
+PGPC-38,MMR
+PGPC-38,Polio
+PGPC-38,Yellow fever
+PGPC-38,Tetanus
+PGPC-38,Influenza
+Participant,Allergy
+PGPC-38,Penicillin
+Participant,Medication
+PGPC-38,Synthroid
+Participant,Medical Procedure,
+PGPC-38,Ankle reconstruction after fracture,
+PGPC-38,Thyroid radiation for Graves' disease,
+PGPC-38,Tonsillectomy
