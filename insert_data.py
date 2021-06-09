@@ -11,13 +11,18 @@ import os, glob
 
 def main():
     dicts = create_dicts()
+    dicts = create_dicts_measurement(dicts)
     for i in range(len(dicts)):
         index = i + 1
-        if index % 2 != 0:      #   Value is not even
+        if index % 2 != 0 and index < 7:      #   Value is not even
             insert_db("person", dicts[i])
             pass
-        else:
+        elif index < 7:
             insert_db("procedure_occurrence", dicts[i])      # Value is even
+            pass
+        else:
+            pass
+            insert_db("measurement", dicts[i])      # Contains all the measurement data
     #get_data_db("person")
 
 
@@ -33,16 +38,42 @@ def create_dicts():
     """
     dicts = []
     files = ["./csvfiles2/PGPC-4.csv", "./csvfiles2/PGPC-14.csv", "./csvfiles2/PGPC-38.csv"]
+
     for file in files:
         for i in ["person","procedure"]:
             synonym = create_synonym(i)
             content = open_file(file)
             dict_patient, tmp_list = add_to_dict(content, synonym)
             dict_patient = add_values_to_dict(dict_patient, tmp_list)
-            dict_patient = check_for_not_null(dict_patient, i,files.index(file))
-
+            dict_patient = check_for_not_null(dict_patient, i,files.index(file), None, None, None)
             dict_patient = change_string_to_int(dict_patient)
             dicts.append(dict_patient)
+    return dicts
+
+def create_dicts_measurement(dicts):
+    """Iterate over the files.
+    Open file and get the concept and date. Loop over the concepts.
+    Add to the dictionary while looping over the concepts.
+    Add the new dictionary to the existing dicts list.
+    :param: dicts: list to which the dictionaries wil be added.
+    :return:list containing dictionaries.
+    """
+    vcf_files = ["./vcf_files/PGPC_0004_chr21_filtered.vcf", "./vcf_files/PGPC_0014_chr21_filtered.vcf",
+                 "./vcf_files/PGPC_0038_chr21_filtered.vcf"]
+    variant_files = ["./variant_map/genes_mapped04.csv", "./variant_map/genes_mapped14.csv", "./variant_map/genes_mapped38.csv"]
+    count = 1
+    for file in variant_files:
+        id = get_person_id(file)
+        content = open_file(file)
+        concept = get_measurement_concept(content)
+        date = get_date(vcf_files[0])
+        for c in concept:
+            dict_patient = {}
+            dict_patient = check_for_not_null(dict_patient, "measurement", c, date, id, count)
+            dict_patient = change_string_to_int(dict_patient)
+            dicts.append(dict_patient)
+            count = count + 1
+        count += 10
     return dicts
 
 
