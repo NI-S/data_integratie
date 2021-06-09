@@ -3,12 +3,13 @@
 | Teamlid | studentnummer |
 |---------|:-------------:|
 | Noah    | 626290        |
-| Steffen |               |
-| Wouter  |               |
+| Steffen | 616094        |
+| Wouter  | 620293        |
 
 ## Mappen
 De mappen bevatten de bestanden die zijn gebruikt voor ons onderzoek.
 Wij hadden de patienten 4, 14, 38.
+Het script mapper heeft Wouter geschreven om de synonymen van SNOMED te mappen.
 
 ## De python bestanden
 ### Invoegen van data in de database
