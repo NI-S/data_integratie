@@ -23,6 +23,7 @@ insert_data.py Call scripts which are mentioned above to fill the generated data
 * insert_data.py is the script you run * 
 
 ## Snakemake file
+You need to install snakemake, to run the snakemake file.
 In lines 20 and 37 change snp.jar to your snp.jar location.
 And change snp.sift to your snp.sift location.
 
