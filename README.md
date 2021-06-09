@@ -11,11 +11,14 @@ De mappen bevatten de bestanden die zijn gebruikt voor ons onderzoek.
 Wij hadden de patienten 4, 14, 38.
 
 ## De python bestanden
+### Invoegen van data in de database
 database.py is een database clas waarmee een connectie kan worden gemaakt met de database.
 
 generate_dicts.py maakt dictionaries met data waarvan we willen dat wordt ingevuld in de database.
 
 insert_data.py roept de bovenstaande scripts aan om de gegenereerde data van generate_dicts in de database in te vullen.
+
+*De insert_data.py is het script dat je dus runt* 
 
 
 
