@@ -1,5 +1,13 @@
+"""Noah Scheffer
+
+Call the functions and insert the results from the dictionaries to the database.
+To see if it is inserted correctly it is also possible to retrieve the data.
+Last time updated: 09-06-2021
+"""
+
 from database import Database_connection
-from person_table import *
+from generate_dicts import *
+import os, glob
 
 def main():
     dicts = create_dicts()
@@ -10,12 +18,21 @@ def main():
             pass
         else:
             insert_db("procedure_occurrence", dicts[i])      # Value is even
-    get_data_db()
+    #get_data_db("person")
 
 
 def create_dicts():
+    """Iterate over the files.
+    create the synonym list which is used to search words in the file.
+    Read the file and add content of file to dictionary and temporary list.
+    Add the values from the temporary list to the keys in the dictionary.
+    Check if keys contain a empty value if so, add a value.
+    Change the values of some keys if necessary.
+    Add the made dict to the dicts list.
+    :return:list containing dictionaries.
+    """
     dicts = []
-    files = ["PGPC-4.csv", "PGPC-14.csv", "PGPC-38.csv"]
+    files = ["./csvfiles2/PGPC-4.csv", "./csvfiles2/PGPC-14.csv", "./csvfiles2/PGPC-38.csv"]
     for file in files:
         for i in ["person","procedure"]:
             synonym = create_synonym(i)
@@ -30,6 +47,14 @@ def create_dicts():
 
 
 def insert_db(table_name,dict_patient):
+    """Seperate the content of the dictionaries in keys and values.
+    Use the table_name to specify the tablename.
+    Connect with the database and insert using the tablename and the keys and values of the dictionary.
+    Disconnect with the database when done.
+    :param table_name:table_name which u want to insert to.
+    :param dict_patient:the dictionary which is used to insert data to the database.
+    :return: Nothing
+    """
     table_name = table_name
     keys = ", ".join(dict_patient.keys())
     values = ', '.join("'" + str(x).replace('/', '_') + "'" for x in dict_patient.values())
@@ -40,10 +65,15 @@ def insert_db(table_name,dict_patient):
     print("done")
     Database.postgre_discconnect()
 
-def get_data_db():
+
+def get_data_db(table_name):
+    """Connect to database and execute the sql query.
+    :param sql: Used to select which table you want the entries from.
+    :return: Nothing
+    """
     Database = Database_connection()
     Database.postgre_connect()
-    sql = "SELECT * from PERSON"
+    sql = "SELECT * from (%s)" % (table_name)
     Database.postgre_excute_query(sql)
     Database.postgre_fetch_results()
     Database.postgre_discconnect()
