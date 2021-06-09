@@ -41,7 +41,5 @@ class Database_connection:
 
 
 
-#sql = "INSERT INTO PERSON (person_id, month_of_birth, year_of_birth, gender_concept_id, ethnicity_concept_id, race_concept_id) VALUES (48, 6, 1968, 8507, 38003564, 0)"
-#sql = INSERT INTO PERSON (person_id, month_of_birth, year_of_birth, gender_concept_id, ethnicity_concept_id, race_concept_id) VALUES (14, 11, 1955, 8532, 38003564, 0)
-#sql = INSERT INTO PERSON (person_id, month_of_birth, year_of_birth, gender_concept_id, ethnicity_concept_id, race_concept_id) VALUES (38, 1, 1960, 8532, 38003564, 0)
+
 
