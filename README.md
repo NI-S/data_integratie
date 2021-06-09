@@ -1,25 +1,26 @@
-# data_integratie
+# Data integration
 
-| Teamlid | studentnummer |
-|---------|:-------------:|
-| Noah    | 626290        |
-| Steffen | 616094        |
-| Wouter  | 620293        |
+| Teammember | studentnumber |
+|------------|:-------------:|
+| Noah       | 626290        |
+| Steffen    | 616094        |
+| Wouter     | 620293        |
 
-## Mappen
-De mappen bevatten de bestanden die zijn gebruikt voor ons onderzoek.
-Wij hadden de patienten 4, 14, 38.
-Het script mapper heeft Wouter geschreven om de synonymen van SNOMED te mappen.
+## Folders
+The folders contain the files that are used for this research.
+We examined patients 4,14,38.
+The mapper.py is not implemented yet in the insert to database, because of time contraints.
 
-## De python bestanden
-### Invoegen van data in de database
-database.py is een database clas waarmee een connectie kan worden gemaakt met de database.
 
-generate_dicts.py maakt dictionaries met data waarvan we willen dat wordt ingevuld in de database.
+## De python files
+### Insert data to database
+database.py is a database clas which can be used to connect to the database.
 
-insert_data.py roept de bovenstaande scripts aan om de gegenereerde data van generate_dicts in de database in te vullen.
+generate_dicts.py creates dictionaries which is used to insert the data in the database.
 
-*De insert_data.py is het script dat je dus runt* 
+insert_data.py Call scripts which are mentioned above to fill the generated data by generate_dicts to the database.
+
+* insert_data.py is the script you run * 
 
 
 
